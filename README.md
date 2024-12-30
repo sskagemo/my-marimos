@@ -1,4 +1,11 @@
-# marimo WebAssembly + GitHub Pages Template
+# my marimos
+
+This repo is forked from a template repository from the [marimo](https://marimo.io) team for easy deploy of marimo notebooks and apps using GitHub Pages
+I'll update the README as soon as I actually add some of my own notebooks or apps ...
+
+Original README-content from the marimo team is below:
+
+---
 
 This template repository demonstrates how to export [marimo](https://marimo.io) notebooks to WebAssembly and deploy them to GitHub Pages.
 
