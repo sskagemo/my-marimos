@@ -23,3 +23,5 @@ This template repository demonstrates how to export [marimo](https://marimo.io) 
 3. Push to main branch
 4. Go to repository **Settings > Pages** and change the "Source" dropdown to "GitHub Actions"
 5. GitHub Actions will automatically build and deploy to Pages
+   (Note: This didn't happen in my case, I had to go into the Actions page and approve the
+   workflow first ... and it still hasn't happened actually ...)
