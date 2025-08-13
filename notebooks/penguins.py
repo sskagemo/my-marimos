@@ -7,9 +7,10 @@
 #     "pandas==2.3.0",
 # ]
 # ///
+
 import marimo
 
-__generated_with = "0.13.5"
+__generated_with = "0.14.16"
 app = marimo.App(width="medium")
 
 with app.setup:
@@ -20,14 +21,15 @@ with app.setup:
 
     file = mo.notebook_location() / "public" / "penguins.csv"
 
+
 @app.cell(hide_code=True)
 def _():
     mo.md(
         """
-        # Palmer Penguins Analysis
+    # Palmer Penguins Analysis
 
-        Analyzing the Palmer Penguins dataset using Polars and marimo.
-        """
+    Analyzing the Palmer Penguins dataset using Polars and marimo.
+    """
     )
     return
 
@@ -39,11 +41,13 @@ def _():
     df.head()
     return (df,)
 
+
 @app.cell
 def _():
     # Try to avoid reading the file with pandas
     _df = pd.read_csv(str(file))
     return
+
 
 @app.cell
 def _(df):
@@ -79,7 +83,7 @@ def _(df):
     )
 
     species_chart
-    return (species_chart,)
+    return
 
 
 @app.cell(hide_code=True)
@@ -105,7 +109,7 @@ def _(df):
     )
 
     scatter
-    return (scatter,)
+    return
 
 
 if __name__ == "__main__":

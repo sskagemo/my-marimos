@@ -28,6 +28,8 @@ def _():
         """
     # Demo - Analyse av Enhetsregisteret i nettleseren
 
+    NB! Denne notatboken ble isteden brukt til å forbedre parquet-filen. Etter forbedringer (fjerne punktum i kolonnenavn, endre fra str til Categorical, lagret jeg som en ny parquet-fil og ser nå at endringene blir med på ny innlesing. Bestemte meg derfor for å lagre en ny demo, der jeg slipper å ha med de endringene. STSK 13. august 2025)
+
     Denne demoen leser inn en dump av Enhetsregisteret (NB! En gammel versjon, fra 2023), og viser hvordan Python-baserte verktøy kan brukes direkte i nettleseren, uten å måtte installere Python på maskinen.
 
     Kort om de forskjellige komponentene:
@@ -38,7 +40,7 @@ def _():
     * duckdb - en database som fokuserer på dataanalyse, og som samhandler effektivt rundt "dataframes"-konseptet til pandas og polars
     * Altair er et bibliotek for å lage grafiske fremstillinger, som et alternativ til det mer kjente matplotlib
 
-    Løsningen er tilgjengeliggjort ved hjelp av Github Pages, som en "statisk" side. Det vil si at all interaksjon, og all python-kode som kjøres enten den er skrevet på forhånd eller legges til av brukeren, kjøres i nettleseren. En måte å se det på er at moderne nettlesere tilbyr virtuelle maskiner, som er "sandboxed", og typisk har en grense på 2 GB arbeidsminne. 
+    Løsningen er tilgjengeliggjort ved hjelp av Github Pages, som en "statisk" side. Det vil si at all interaksjon, og all python-kode som kjøres enten den er skrevet på forhånd eller legges til av brukeren, kjøres i nettleseren. En måte å se det på er at moderne nettlesere tilbyr virtuelle maskiner, som er "sandboxed", og typisk har en grense på 2 GB arbeidsminne.
     """
     )
     return
@@ -51,7 +53,6 @@ def _():
     ## Les inn, få oversikt over, og tilpasse dataene
 
     Første steg er å bruke polars funksjon for å lese data fra parquet. Etter innlesning brukes polars "head"-funksjon for å vise de første fem linjene. Skroll til høyre for å se alle kolonnene.
-
     """
     )
     return
@@ -80,8 +81,8 @@ def _():
 
 @app.cell
 def _(df):
-
-    mo.md(f"""
+    mo.md(
+        f"""
     ### Oversikt over innholdet i datasettet
 
     - Antall enheter: {df.height}
@@ -90,9 +91,8 @@ def _(df):
     ### Oppsummerende fakta/statistikk om de ulike kolonnene
 
     {mo.as_html(df.describe())}
-    """)
-
-
+    """
+    )
     return
 
 
@@ -101,7 +101,7 @@ def _():
     mo.md(
         r"""
     ### Oversikt via marimos innebyggete verktøy
-    
+
     Etter at dataene er lest inn er det også mulig å se mer detaljer om datasettet i menyen til venstre. Velg databasesymbolet og få opp liste over datakilder, dvs dataframes. For hver kolonne kan du se hvilken datatype kolonnen har, og ved å klikke på kolonnenavnet, får du i tillegg informasjon om antall verdier, tomme (null), og fordeling av verdier, f.eks. antall true og false, eller antall unike verdier.
     """
     )
@@ -177,6 +177,24 @@ def _(df_forbedret):
 @app.cell
 def _(df_categorical):
     df_categorical.describe()
+    return
+
+
+@app.cell
+def _(df_forbedret):
+    df_forbedret.write_parquet('er_forbedret.parquet')
+    return
+
+
+@app.cell
+def _():
+    df_fra_forbedret = pl.read_parquet('er_forbedret.parquet')
+    return (df_fra_forbedret,)
+
+
+@app.cell
+def _(df_fra_forbedret):
+    df_fra_forbedret.estimated_size(unit='gb')
     return
 
 
