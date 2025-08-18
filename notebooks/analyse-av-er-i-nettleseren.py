@@ -10,13 +10,16 @@
 
 import marimo
 
-__generated_with = "0.14.16"
+__generated_with = "0.14.17"
 app = marimo.App(width="medium")
 
 with app.setup:
     import marimo as mo
     import polars as pl
     import altair as alt
+    import pyarrow.parquet as pq
+    import requests
+    import os
 
     file = mo.notebook_location() / "public" / "enheter_alle.parquet"
 
@@ -43,7 +46,7 @@ def _():
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _():
     mo.md(
         r"""
@@ -61,14 +64,41 @@ def _():
 
 @app.cell
 def _():
-    # Les Enhetsregisteret (NB!! Utdatert versjon!!!) fra enheter_alle.parquet
-    # Og vis de første linjene
-    df = pl.read_parquet(str(file))
-    df.head()
+    # Les Enhetsregisteret (NB!! Utdatert versjon av registeret!!!), og vis de første linjene
+    # 
+    # Dette er normalt bare to linjer kode, for polars kan lese parquet-filer direkte. Men akkurat 
+    # funksjonen for å lese parquet-filer via http fungerer ikke når polars kjører i nettleseren,
+    # derfor må vi bruke noen ekstra kodelinjer for først å finne ut om denne notatboken kjører 
+    # direkte i nettleseren eller ei. Hvis den kjører i nettleseren må vi laste ned fila vi skal lese
+    # til nettleserens virtuelle filsystem, og bruke pyarrow til å lese fila, før polars kan overta
+
+    if "http" in str(file)[:4]:
+        # filnavnet starter med http, m.a.o. kjører demoen i nettelseren,
+        # og vi må laste ned filen vha requests før den kan leses
+        r = requests.get(str(file), allow_redirects=True)
+        r.raise_for_status()
+        with open('data.parquet', 'wb') as f:
+            f.write(r.content)  # lagrer fila i nettleserens virtuelle filsystem
+
+        df = pl.from_arrow(pq.read_table('data.parquet'))
+    
+        # for å redusere minnebruken, fjerner vi den lokale filen når vi har lest inn dataene:
+        try:
+            os.remove('data.parquet')
+            print("Filen ble slettet.")
+        except FileNotFoundError:
+            print("Filen finnes ikke.")
+    else:
+        # dette er den normale måten å gjøre det på med polars, og 
+        # vil antagelig også fungere i fremtiden når python i nettleseren
+        # blir like normalt som å ha python installert på egen maskin
+        df = pl.read_parquet(str(file))
+
+    df.head() # Viser de første fem postene i datasettet
     return (df,)
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _():
     mo.md(
         r"""
@@ -99,7 +129,7 @@ def _(df):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _():
     mo.md(
         r"""
@@ -140,7 +170,7 @@ def _(df):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _():
     mo.md(
         r"""
@@ -164,7 +194,7 @@ def _(df):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _():
     mo.md(
         r"""
@@ -182,14 +212,14 @@ def _(df):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _():
     mo.md(
         r"""
     Filstørrelser
 
     Nedenfor er oversikt over størrelse på filene for nedlasting, pr 13. august 2025:
-    
+
     * Zippet json: ca 17O mb
     * Zippet CSV: ca 130 mb
     * Excel: ca 370 mb
