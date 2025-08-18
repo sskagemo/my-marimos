@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.14.16"
+__generated_with = "0.14.17"
 app = marimo.App(width="medium")
 
 
@@ -182,6 +182,40 @@ def _(mo):
 def _():
     import requests
     return (requests,)
+
+
+@app.cell
+def _(df_polars_http, file, os, pl, pq, requests):
+    if "http" in str(file)[:4]:
+        # filnavnet starter med http, m.a.o. kjører demoen i nettelseren,
+        # og vi må laste ned filen vha requests før den kan leses
+
+        # men først må vi anvende pyodide-prosjektets "lapping" av requeests
+        import pyodide_http
+        pyodide_http.patch_all()
+
+        r = requests.get(str(file),
+                         allow_redirects=True)
+        r.raise_for_status()
+        with open('data.parquet', 'wb') as f:
+            f.write(r.content)  # lagrer fila i nettleserens virtuelle filsystem
+
+        df = pl.from_arrow(pq.read_table('data.parquet'))
+
+        # for å redusere minnebruken, fjerner vi den lokale filen når vi har lest inn dataene:
+        try:
+            os.remove('data.parquet')
+            print("Filen ble slettet.")
+        except FileNotFoundError:
+            print("Filen finnes ikke.")
+    else:
+        # dette er den normale måten å gjøre det på med polars, og 
+        # vil antagelig også fungere i fremtiden når python i nettleseren
+        # blir like normalt som å ha python installert på egen maskin
+        df = pl.read_parquet(str(file))
+
+    df_polars_http.head() # Viser de første fem postene i datasettet
+    return
 
 
 @app.cell

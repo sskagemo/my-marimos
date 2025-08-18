@@ -75,13 +75,18 @@ def _():
     if "http" in str(file)[:4]:
         # filnavnet starter med http, m.a.o. kjører demoen i nettelseren,
         # og vi må laste ned filen vha requests før den kan leses
+
+        # men først må vi anvende pyodide-prosjektets "lapping" av requests
+        import pyodide_http
+        pyodide_http.patch_all()
+    
         r = requests.get(str(file), allow_redirects=True)
         r.raise_for_status()
         with open('data.parquet', 'wb') as f:
             f.write(r.content)  # lagrer fila i nettleserens virtuelle filsystem
 
         df = pl.from_arrow(pq.read_table('data.parquet'))
-    
+
         # for å redusere minnebruken, fjerner vi den lokale filen når vi har lest inn dataene:
         try:
             os.remove('data.parquet')
