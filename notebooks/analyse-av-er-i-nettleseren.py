@@ -160,6 +160,13 @@ def _():
     return
 
 
+@app.cell
+def _():
+    import gc
+    gc.collect()
+    return
+
+
 @app.cell(disabled=True)
 def _(df):
     # Vis fordeling av organisasjonsformer
