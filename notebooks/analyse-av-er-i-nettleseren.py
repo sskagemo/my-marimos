@@ -160,11 +160,11 @@ def _():
     return
 
 
-@app.cell
+@app.cell(disabled=True)
 def _(df):
     # Vis fordeling av organisasjonsformer
     organisasjonsform_chart = mo.ui.altair_chart(
-        alt.Chart(df)
+        alt.Chart(df.to_pandas())
         .mark_bar()
         .encode(x=alt.X("organisasjonsform_kode:N", title="Organisasjonsform (kode)", sort="-y"), y="count():Q")
         .properties(title="Fordeling av organisasjonsformer"),
@@ -189,7 +189,7 @@ def _():
     return
 
 
-@app.cell
+@app.cell(disabled=True)
 def _(df):
     _df = mo.sql(
         f"""
