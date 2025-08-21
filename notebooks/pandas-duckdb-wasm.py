@@ -14,18 +14,20 @@ def _():
 def _(mo):
     import pandas as pd
     import pyarrow  # pandas bruker pyarrow for å kunne lese parquet riktig
+    import pyarrow.parquet as pq
     from pyodide.http import pyfetch  # pyfetch og io brukes for å laste ned fila
     import io
 
+
     file = mo.notebook_location() / 'public' / 'enheter_alle.parquet'
-    return file, io, pyarrow, pyfetch
+    return file, io, pq, pyfetch
 
 
 @app.cell
-async def _(file, io, pyarrow, pyfetch):
+async def _(file, io, pq, pyfetch):
     # Leser innholdet i parquet-fila i en pandas dataframe
     # Du finner resultatet under "Explore Data Sources" i menyen til venstre
-    df = pyarrow.parquet.read_table(
+    df = pq.read_table(
         io.BytesIO(await (await pyfetch(str(file))).bytes())
         ).to_pandas()
     return (df,)
